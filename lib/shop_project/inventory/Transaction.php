@@ -5,14 +5,12 @@ class Transaction
     private $db;
     public $result;
 
-    public function __construct($supplierName, $itemName, $itemPrice, $itemCount) // pass in variables here
+    public function __construct(DbInterface $db)
     {
-        $getDbType = Shop::DB_CON;
-
-        $this->db = new $getDbType($supplierName, $itemName, $itemPrice, $itemCount); //this means either 'new jsonConnector' or 'new sqlConnector'
+        $this->db = $db;
     }
 
-    public function goodsIn()
+    public function goodsIn($supplierName, $itemName, $itemPrice, $itemCount)
     {
         /*  1. Check JSON array to see if 'itemName' already exists
                 a. If so, update totals for this item
@@ -28,20 +26,20 @@ class Transaction
         -----This process should either return true or false-----
         */
 
-        if ($this->db->itemExists()) {
-            $this->db->increaseStockLevels();
-            $this->db->updatePricePaid();
+        if ($this->db->itemExists($itemName)) {
+            $this->db->increaseStockLevels($itemName, $itemCount);
+            $this->db->updatePricePaid($itemName, $itemPrice);
         } else { //we haven't got this item yet, add it, including price paid to the array.
-            $this->db->addItem();// --- THIS IS WHAT I'M CURRENTLY DOING.
+            $this->db->addItem($supplierName, $itemName, $itemPrice, $itemCount);
         }
 
-        $this->db->subtractRollingCash();
+        $this->db->subtractRollingCash($itemPrice, $itemCount);
         $this->db->updateDB(); //this dumps the array data back to JSON.
 
         $this->result = true;
     }
 
-    public function goodsOut()
+    public function goodsOut($supplierName, $itemName, $itemPrice, $itemCount)
     {
         /*  1. Check JSON array to see if 'itemName' already exists
                 a. If so, check stock levels are greater than requested sell amount. If not, cancel the transaction, we do not have enough of that item.
@@ -55,12 +53,12 @@ class Transaction
         -----This process should either return true or false-----
         */
 
-        if ($this->db->itemExists()) {
-            if ($this->db->checkStockLevels()) {
+        if ($this->db->itemExists($itemName)) {
+            if ($this->db->checkStockLevels($itemName, $itemCount)) {
 
-                $this->db->reduceStockLevels();
-                $this->db->addRollingCash();
-                $this->db->updateProfit();
+                $this->db->reduceStockLevels($itemName, $itemCount);
+                $this->db->addRollingCash($itemPrice, $itemCount);
+                $this->db->updateProfit($itemName, $itemPrice, $itemCount);
                 $this->db->updateDB();
 
                 $this->result = true; //goods in complete

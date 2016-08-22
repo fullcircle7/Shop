@@ -27,20 +27,26 @@
         {
             "itemName": "Butter",
             "itemPrice": "0.83",
-            "itemCount": 0,
+            "itemCount": 1,
             "supplierName": "Sainsburys"
         },
         {
             "itemName": "USB Mouse",
             "itemPrice": 4.5,
-            "itemCount": 273,
+            "itemCount": 359,
+            "supplierName": "Misco"
+        },
+        {
+            "itemName": "PS2 Mouse",
+            "itemPrice": 4.6,
+            "itemCount": 0,
             "supplierName": "Misco"
         }
     ],
     "cash": [
         {
-            "rollingCash": 48807.5,
-            "profit": 529.36
+            "rollingCash": 48581.5,
+            "profit": 676.88
         }
     ]
 }

@@ -26,6 +26,8 @@ class Shop
     const DB_CON = 'jsonConnector';
     //const DB_CON = 'sqlConnector';
 
+    private $result = 'The request failed';
+
     public function __construct($action)
     {
         $action = strtolower($action); //make sure case is always the same for comparison purposes
@@ -44,39 +46,47 @@ class Shop
 
     public function buy() //buy stock
     {
-        $transaction = new Transaction('Misco', 'USB Mouse', 4.50, 7);
-        $transaction->goodsIn();
+        //$db = new (self::DB_CON);
+
+        $dbType = self::DB_CON;
+
+        $db = new $dbType;
+        $transaction = new Transaction($db);
+        $transaction->goodsIn('Misco', 'PS2 Mouse', 4.60, 2);
 
         if ($transaction->result === true) {
-            $result = 'The request succeeded';
-        } else {
-            $result = 'The request failed';
+            $this->result = 'The request succeeded';
         }
 
-        $this->output($result);
+        $this->output($this->result);
     }
 
     public function sell() //sell stock
     {
-        $transaction = new Transaction('Misco', 'Butter', 4.50, 1);
-        $transaction->goodsOut();
+        $dbType = self::DB_CON;
+
+        $db = new $dbType;
+        $transaction = new Transaction($db);
+        $transaction->goodsOut('Misco', 'Butter', 4.50, 1);
 
         if ($transaction->result === true) {
-            $result = 'The request succeeded';
-        } else {
-            $result = 'The request failed';
+            $this->result = 'The request succeeded';
         }
 
-        $this->output($result);
+        $this->output($this->result);
     }
 
     public function profit() //display profit and cash in hand.
     {
-        $transaction = new Transaction('this','is','not','needed');
-        $transaction->getProfit();
-        $result = 'Profit is currently at: £' . $transaction->result;
+        $dbType = self::DB_CON;
 
-        $this->output($result);
+        $db = new $dbType;
+        $transaction = new Transaction($db);
+        $transaction->getProfit();
+
+        $this->result = 'Profit is currently at: £' . $transaction->result;
+
+        $this->output($this->result);
     }
 
     public function output($output)

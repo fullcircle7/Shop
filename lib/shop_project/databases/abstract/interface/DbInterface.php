@@ -2,17 +2,17 @@
 
 interface DbInterface
 {
-    public function __construct($supplierName, $itemName, $itemPrice, $itemCount);
+    public function __construct();
 
-    public function itemExists();
-    public function addItem();
-    public function addRollingCash();
-    public function subtractRollingCash();
+    public function itemExists($itemName);
+    public function addItem($supplierName, $itemName, $itemPrice, $itemCount);
+    public function addRollingCash($itemPrice, $itemCount);
+    public function subtractRollingCash($itemPrice, $itemCount);
     public function updateDB();
-    public function checkStockLevels();
-    public function increaseStockLevels();
-    public function reduceStockLevels();
-    public function updateProfit();
+    public function checkStockLevels($itemName, $itemCount);
+    public function increaseStockLevels($itemName, $itemCount);
+    public function reduceStockLevels($itemName, $itemCount);
+    public function updateProfit($itemName, $itemPrice, $itemCount);
     public function getProfit();
-    public function updatePricePaid();
+    public function updatePricePaid($itemName, $itemPrice);
 }
