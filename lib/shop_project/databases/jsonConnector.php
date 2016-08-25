@@ -2,7 +2,7 @@
 
 //implements not extends DbAbstract? Need to test this... As with implements I can make sure the definition of each DB connector is virtually the same.
 
-class jsonConnector extends DbAbstract
+class jsonConnector extends DbAbstract implements DbInterface
 {
     //JSON specific variables
     private $json;

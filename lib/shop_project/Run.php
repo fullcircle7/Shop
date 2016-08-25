@@ -16,6 +16,14 @@ fwrite(STDOUT,'test');
 
 require 'autoloader.inc.php';
 
+//...Set DB type here...//
+
+const DB_CON = 'jsonConnector';
+//const DB_CON = 'sqlConnector';
+//const DB_CON = 'otherDatabase';
+
+//...Set DB type here...//
+
 class Shop
 {
     const BUY = 'buy';
@@ -23,65 +31,56 @@ class Shop
     const PROFIT = 'profit';
     const ERROR_MSG = 'You have mistyped your parameter, please try again';
 
-    const DB_CON = 'jsonConnector';
-    //const DB_CON = 'sqlConnector';
+    private $result;
+    private $db;
 
-    private $result = 'The request failed';
-
-    public function __construct($action)
+    public function __construct(DbInterface $db)
     {
+        $this->db = $db;
+    }
+
+    public function handle($action)
+    {
+        $transaction = new Transaction($this->db);
+
         $action = strtolower($action); //make sure case is always the same for comparison purposes
 
         if ($action === self::BUY) {
-            self::BUY();
+            $this->buy($transaction);
         } else if ($action === self::SELL) {
-            self::SELL();
+            $this->sell($transaction);
         } else if ($action === self::PROFIT) {
-            self::PROFIT();
+            $this->profit($transaction);
         } else {
             $this->output(self::ERROR_MSG);
             exit();
         }
     }
 
-    public function buy() //buy stock
+    public function buy($transaction) //buy stock
     {
-        //$db = new (self::DB_CON);
+        $transaction->goodsIn('Misco', 'PS2 Mouse', 0.01, 1);
 
-        $dbType = self::DB_CON;
-
-        $db = new $dbType;
-        $transaction = new Transaction($db);
-        $transaction->goodsIn('Misco', 'PS2 Mouse', 4.60, 2);
-
-        if ($transaction->result === true) {
-            $this->result = 'The request succeeded';
+        if ($transaction->result === false) {
+            $this->output('Transaction failed. ' . $transaction->errorMsg);
+        } else {
+            $this->output('The request succeeded.');
         }
-
-        $this->output($this->result);
     }
 
-    public function sell() //sell stock
+    public function sell($transaction) //sell stock
     {
-        $dbType = self::DB_CON;
+        $transaction->goodsOut('Misco', 'Butter', 1, 1);
 
-        $db = new $dbType;
-        $transaction = new Transaction($db);
-        $transaction->goodsOut('Misco', 'Butter', 4.50, 1);
-
-        if ($transaction->result === true) {
-            $this->result = 'The request succeeded';
+        if ($transaction->result === false) {
+            $this->output('Transaction failed. ' . $transaction->errorMsg);
+        } else {
+            $this->output('The request succeeded.');
         }
-
-        $this->output($this->result);
     }
 
-    public function profit() //display profit and cash in hand.
+    public function profit($transaction) //display profit and cash in hand.
     {
-        $dbType = self::DB_CON;
-
-        $db = new $dbType;
-        $transaction = new Transaction($db);
         $transaction->getProfit();
 
         $this->result = 'Profit is currently at: £' . $transaction->result;
@@ -96,4 +95,8 @@ class Shop
 
 }
 
-$shop = new Shop($argv[1]); //passes in argument to constructor.
+$dbType = DB_CON;
+$db = new $dbType;
+
+$shop = new Shop($db); //passes in argument to constructor.
+$shop->handle($argv[1]);

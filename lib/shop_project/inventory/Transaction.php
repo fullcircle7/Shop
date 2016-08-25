@@ -4,6 +4,7 @@ class Transaction
 {
     private $db;
     public $result;
+    public $errorMsg;
 
     public function __construct(DbInterface $db)
     {
@@ -25,6 +26,19 @@ class Transaction
 
         -----This process should either return true or false-----
         */
+
+        $validate = new Validation;
+
+        try {
+            $validate->supplierName($supplierName);
+            $validate->itemName($itemName);
+            $validate->itemPrice($itemPrice);
+            $validate->itemCount($itemCount);
+        } catch (Exception $e) {
+            $this->result = false;
+            $this->errorMsg = $e;
+            return;
+        }
 
         if ($this->db->itemExists($itemName)) {
             $this->db->increaseStockLevels($itemName, $itemCount);
@@ -53,6 +67,19 @@ class Transaction
         -----This process should either return true or false-----
         */
 
+        $validate = new Validation;
+
+        try {
+            $validate->supplierName($supplierName);
+            $validate->itemName($itemName);
+            $validate->itemPrice($itemPrice);
+            $validate->itemCount($itemCount);
+        } catch (Exception $e) {
+            $this->result = false;
+            $this->errorMsg = $e;
+            return;
+        }
+
         if ($this->db->itemExists($itemName)) {
             if ($this->db->checkStockLevels($itemName, $itemCount)) {
 
@@ -64,9 +91,11 @@ class Transaction
                 $this->result = true; //goods in complete
             } else { //we do not have enough of that item, cancel the transaction
                 $this->result = false;
+                $this->errorMsg = 'We do not have enough of that item available to sell.';
             }
         } else { //we do not have that item, cancel the transaction
             $this->result = false;
+            $this->errorMsg = 'We do not have that item in stock, so therefore cannot sell it.';
         }
     }
 
