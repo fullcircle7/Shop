@@ -1,0 +1,41 @@
+{
+    "items":[
+        {
+            "itemName":"Baked Beans",
+            "itemPrice":"0.50",
+            "itemCount":1,
+            "supplierName":"Sainsburys"
+        },
+        {
+            "itemName":"Washing Up Liquid",
+            "itemPrice":"0.72",
+            "itemCount":1,
+            "supplierName":"Sainsburys"
+        },
+        {
+            "itemName":"Rubber Gloves",
+            "itemPrice":"1.50",
+            "itemCount":1,
+            "supplierName":"Sainsburys"
+        },
+        {
+            "itemName":"Bread",
+            "itemPrice":"0.72",
+            "itemCount":1,
+            "supplierName":"Sainsburys"
+        },
+        {
+            "itemName":"Butter",
+            "itemPrice":"0.83",
+            "itemCount":1,
+            "supplierName":"Sainsburys"
+        }
+    ],
+
+    "cash":[
+        {
+            "rollingCash":"50000",
+            "profit":"500"
+        }
+    ]
+}

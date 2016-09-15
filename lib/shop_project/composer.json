@@ -1,0 +1,13 @@
+{
+  "name": "danny/shop",
+  "description": "Danny - Shop Project",
+  "require": {
+    "php": ">=5.3.3",
+    "symfony/console": "2.4.x-dev"
+  },
+  "autoload": {
+    "psr-0": {
+      "": "src/"
+    }
+  }
+}

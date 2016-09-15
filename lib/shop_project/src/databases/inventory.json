@@ -39,14 +39,14 @@
         {
             "itemName": "PS2 Mouse",
             "itemPrice": 0.01,
-            "itemCount": 32,
+            "itemCount": 52,
             "supplierName": "Misco"
         }
     ],
     "cash": [
         {
-            "rollingCash": 48501.13,
-            "profit": 677.43
+            "rollingCash": 48507.93,
+            "profit": 678.62
         }
     ]
 }
