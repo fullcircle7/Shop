@@ -1,17 +1,15 @@
 <?php
 
-//implements not extends DbAbstract? Need to test this... As with implements I can make sure the definition of each DB connector is virtually the same.
-
-class jsonConnector extends DbAbstract implements DbInterface
+class jsonConnector implements DbInterface
 {
-    //JSON specific variables
+    protected $result;
+
     private $json;
     private $jsonData;
-    //JSON specific variables
 
     public function __construct()
     {
-        $this->json = file_get_contents(dirname(dirname(__FILE__)) . '/databases/inventory.json'); //read in json file
+        $this->json = file_get_contents(dirname(dirname(__FILE__)) . '/Databases/Inventory.json'); //read in json file
         $this->jsonData = json_decode($this->json, true); //create assoc array from data
     }
 
@@ -20,7 +18,7 @@ class jsonConnector extends DbAbstract implements DbInterface
     {
         foreach ($this->jsonData['items'] as $key => $value) {
 
-            if ($value['itemName'] === $itemName) { //check to see if item already exists in inventory.
+            if ($value['itemName'] === $itemName) { //check to see if item already exists in Inventory.
                 $this->result = true;
                 break;
             } else {
@@ -63,7 +61,7 @@ class jsonConnector extends DbAbstract implements DbInterface
     function updateDB()
     {
         $encodedJson = json_encode($this->jsonData, JSON_PRETTY_PRINT); //put array back into JSON format
-        file_put_contents(dirname(dirname(__FILE__)) . '/databases/inventory.json', $encodedJson); //replace the JSON file with the new content
+        file_put_contents(dirname(dirname(__FILE__)) . '/Databases/Inventory.json', $encodedJson); //replace the JSON file with the new content
     }
 
     function checkStockLevels($itemName, $itemCount)

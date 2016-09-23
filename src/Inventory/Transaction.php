@@ -20,7 +20,7 @@ class Transaction
             3. Dump the data from the array back into 'inventory.json' and end.
 
 
-            Optional: Add 'supplierName' to 'list of suppliers?' Could have a sub array in the JSON of 'Supplier' and a zero indexed list of suppliers.
+            Optional: Add 'supplierName' to 'list of Suppliers?' Could have a sub array in the JSON of 'Supplier' and a zero indexed list of Suppliers.
                 1. Check if the supplier name exists and if it does, do nothing
                     a. If it doesn't then add the new name to the list.
 

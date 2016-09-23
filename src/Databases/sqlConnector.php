@@ -1,10 +1,10 @@
 <?php
 
-class sqlConnector extends DbAbstract
+class sqlConnector implements DbInterface
 {
-    //SQL specific variables
+    protected $result;
+
     private $sql_db_handle;
-    //SQL specific variables
 
     public function __construct($supplierName, $itemName, $itemPrice, $itemCount)
     {

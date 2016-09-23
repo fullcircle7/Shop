@@ -22,9 +22,10 @@ class SellCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $db = new \jsonConnector();
+        $shop = $this->getApplication()->getShop();
 
-        $shop = new \Shop($db);
-        $shop->run('Sell');
+        $result = $shop->sell();
+
+        $output->writeln($result);
     }
 }

@@ -22,10 +22,10 @@ class ProfitCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $db = new \jsonConnector();
+        $shop = $this->getApplication()->getShop();
 
-        $shop = new \Shop($db);
-        $shop->run('Profit');
+        $result = $shop->profit();
+
+        $output->writeln($result);
     }
-
 }

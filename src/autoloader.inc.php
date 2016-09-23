@@ -2,12 +2,11 @@
 
 spl_autoload_register (function ($class) {
 
-    $sources = array("/$class.php",
-                     "/databases/$class.php",
-                         "/databases/abstract/$class.php",
-                         "/databases/abstract/interface/$class.php",
-                     "/inventory/$class.php",
-                     "/suppliers/$class.php",
+    $sources = array("$class.php",
+                     "/Databases/$class.php",
+                         "/Databases/Interface/$class.php",
+                     "/Inventory/$class.php",
+                     "/Suppliers/$class.php",
     );
 
     foreach ($sources as $source) {

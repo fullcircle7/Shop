@@ -16,7 +16,10 @@ use Command\BuyCommand;
 use Command\SellCommand;
 use Command\ProfitCommand;
 
-$app = new Application();
+
+$db = new \jsonConnector();
+$shop = new \Shop($db);
+$app = new ShopApplication($shop);
 $app->add(new BuyCommand());
 $app->add(new SellCommand());
 $app->add(new ProfitCommand());
