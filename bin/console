@@ -17,7 +17,8 @@ use Command\SellCommand;
 use Command\ProfitCommand;
 
 
-$db = new \jsonConnector();
+//$db = new \jsonConnector();
+$db = new \sqlConnector();
 $shop = new \Shop($db);
 $app = new ShopApplication($shop);
 $app->add(new BuyCommand());
