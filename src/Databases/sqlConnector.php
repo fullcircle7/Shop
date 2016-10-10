@@ -1,7 +1,17 @@
 <?php
 
+namespace Databases;
+
+use Databases\DbInterfaces\DbInterface;
+use PDO;
+
 class sqlConnector implements DbInterface
 {
+    /*
+    * Write Exception handling using try/catch and PDOExceptions for the whole class...
+    * ...This would require modification to my 'Transaction' class logic to deal with all the extra returns.
+    */
+
     protected $result;
     protected $db;
 
@@ -30,57 +40,8 @@ class sqlConnector implements DbInterface
         }
     }
 
-    /* SAMPLE CODE
-     * $result = $db->query('SELECT * FROM Dogs');
-     * foreach ($result as $row) {
-     * fwrite(STDOUT, $row['Breed'] . PHP_EOL);
-     * }
-    */
-
-
-
     function itemExists($itemName)
     {
-        //I need to put some thought in whether any of the code can be done once rather than having it all inside every function over and over again.
-        // Lastly, I could have an 'query' array that stores all my queries in one place. The keys should match the names of the methods inside this class, and the values would obviously be the queries.
-        /*
-         * Then, in each method I can prepare the relevant query to begin with.
-         *
-         * So it would go something like this...
-         * ... $this->queries = ('itemExists' => ?);         *
-         *
-         * $itemExistsQuery = $this->db->prepare($this->queries['itemExists']);
-         *
-         * then when i'm ready...
-         * ... $itemExistsQuery->bindParam(1, $itemName, PDO::PARAM_STR);
-         *
-         * then...
-         * ...$result = $itemExistsQuery->execute();
-         *
-         * then...
-         * ... if ($result = false) { //check if operation was successful
-         *     $this->result = 'There was an error, cancelling operation';
-         * } else {
-         *     Something was returned, double check it equals the provided value by the user?
-         * }
-         *
-         *
-         * Instead of the error handling above I should probably make use of try/catch and PDOExceptions tbh...
-         *
-         */
-
-//        //prepare the statement
-//        if (!$preparedStatement = $this->db->prepare($sql)) {
-//            fwrite(STDOUT, 'I failed');
-//        } else {
-//            fwrite(STDOUT, 'I worked.');
-//        }
-//        exit();
-
-
-
-
-
         //write query with wildcard
         $sql = "SELECT `itemName` FROM `items` WHERE `itemName` = :itemName";
 
@@ -95,64 +56,102 @@ class sqlConnector implements DbInterface
 
         //check the result
         if($preparedStatement->fetch()) { //if item has been found (fetch returns false if no results and an array if there are results)
-            fwrite(STDOUT, 'the item exists.' . PHP_EOL);
-            //$this->result = true;
+            $this->result = true;
         } else { //false was returned, the item does not exist
-            fwrite(STDOUT, 'the item does not exist.' . PHP_EOL);
-            //$this->result = false;
+            $this->result = false;
         }
-        exit();
         return $this->result;
     }
 
     function addItem($supplierName, $itemName, $itemPrice, $itemCount)
     {
-        //add item name, price, count and supplier to a new element of the array
+        //write query with wildcard
+        $sql = "INSERT INTO `items` (itemName, itemPrice, itemCount, supplierName) VALUES (:itemName, :itemPrice, :itemCount, :supplierName)";
 
-        $count = count($this->jsonData['items']); //this doesn't take into account starting from 0, therefore we don't have to add 1 we can just use this value immediately
-        $this->jsonData['items'][$count] = array('itemName' => $itemName,
-            'itemPrice' => $itemPrice,
-            'itemCount' => $itemCount,
-            'supplierName' => $supplierName
-        );
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':itemName', $itemName, PDO::PARAM_STR);
+        $preparedStatement->bindParam(':itemPrice', $itemPrice, PDO::PARAM_STR);
+        $preparedStatement->bindParam(':itemCount', $itemCount, PDO::PARAM_INT);
+        $preparedStatement->bindParam(':supplierName', $supplierName, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
     }
 
     function addRollingCash($itemPrice, $itemCount)
     {
-        //Calculate the price received from sale, itemPrice * itemCount and add this to the 'rollingCash' figure.
+        $getRollingCash = $this->db->query("SELECT `rollingCash` FROM `cash` WHERE `id` = 1");
+        $getRollingCash = $getRollingCash->fetch();
 
+        //Calculate the price received from sale, itemPrice * itemCount and add this to the 'rollingCash' figure.
         $sale = $itemPrice * $itemCount;
-        $this->jsonData['cash'][0]['rollingCash'] += $sale;
+        $newRollingCash = $getRollingCash['rollingCash'] += $sale;
+
+        //write insert query with wildcard
+        $sql = "UPDATE `cash` SET `rollingCash` = :newRollingCash WHERE `id` = 1";
+
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':newRollingCash', $newRollingCash, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
     }
 
     function subtractRollingCash($itemPrice, $itemCount)
     {
-        //Calculate the price spent, itemPrice * itemCount and take this away from the 'rollingCash' figure in the DB (this is allowed to go into negative as we are a business)
+        $getRollingCash = $this->db->query("SELECT `rollingCash` FROM `cash` WHERE `id` = 1");
+        $getRollingCash = $getRollingCash->fetch();
 
-        $purchase = $itemPrice * $itemCount;
-        $this->jsonData['cash'][0]['rollingCash'] -= $purchase;
+        //Calculate the price received from sale, itemPrice * itemCount and add this to the 'rollingCash' figure.
+        $sale = $itemPrice * $itemCount;
+        $newRollingCash = $getRollingCash['rollingCash'] -= $sale;
 
+        //write update query with wildcard
+        $sql = "UPDATE `cash` SET `rollingCash` = :newRollingCash WHERE `id` = 1";
+
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':newRollingCash', $newRollingCash, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
     }
 
-    function updateDB()
+    function updateDB() //NOT NEEDED FOR SQL as persistence updates are made piecemeal, not all at once like with JSON
     {
-        $encodedJson = json_encode($this->jsonData, JSON_PRETTY_PRINT); //put array back into JSON format
-        file_put_contents(dirname(dirname(__FILE__)) . '/Databases/Inventory.json', $encodedJson); //replace the JSON file with the new content
+
     }
 
     function checkStockLevels($itemName, $itemCount)
     {
-        foreach ($this->jsonData['items'] as $key => $value) {
+        //write query with wildcard
+        $sql = "SELECT `itemCount` FROM `items` WHERE `itemName` = :itemName";
 
-            if ($value['itemName'] === $itemName) { //find item
-                if ($value['itemCount'] >= $itemCount) { //check we have enough stock
-                    $this->result = true;
-                    break;
-                } else { //we don't have enough of this item
-                    $this->result = false;
-                    break;
-                }
-            }
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':itemName', $itemName, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
+
+        //get results
+        $result = $preparedStatement->fetch();
+
+
+        if ($result['itemCount'] >= $itemCount) { //check we have enough stock
+            $this->result = true;
+        } else { //we don't have enough of this item
+            $this->result = false;
         }
 
         return $this->result;
@@ -160,29 +159,86 @@ class sqlConnector implements DbInterface
 
     function reduceStockLevels($itemName, $itemCount)
     {
-        foreach ($this->jsonData['items'] as $key => $value) {
-            if ($value['itemName'] === $itemName) { //find item
-                $this->jsonData['items'][$key]['itemCount'] -= $itemCount; //reduce stock level
-            }
-        }
+        //write query with wildcard
+        $sql = "SELECT `itemCount` FROM `items` WHERE `itemName` = :itemName";
+
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':itemName', $itemName, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
+
+        //get results
+        $result = $preparedStatement->fetch();
+
+        //calculate new stock level
+        $newStockLevel = $result['itemCount'] -= $itemCount;
+
+        //write query with wildcard
+        $sql = "UPDATE `items` SET `itemCount` = :newStockLevel WHERE `itemName` = :itemName";
+
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':newStockLevel', $newStockLevel, PDO::PARAM_STR);
+        $preparedStatement->bindParam(':itemName', $itemName, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
     }
 
     function increaseStockLevels($itemName, $itemCount)
     {
-        foreach ($this->jsonData['items'] as $key => $value) {
-            if ($value['itemName'] === $itemName) { //find item
-                $this->jsonData['items'][$key]['itemCount'] += $itemCount; //increase stock level
-            }
-        }
+        //write query with wildcard
+        $sql = "SELECT `itemCount` FROM `items` WHERE `itemName` = :itemName";
+
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':itemName', $itemName, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
+
+        //get results
+        $result = $preparedStatement->fetch();
+
+        //calculate new stock level
+        $newStockLevel = $result['itemCount'] += $itemCount;
+
+        //write query with wildcard
+        $sql = "UPDATE `items` SET `itemCount` = :newStockLevel WHERE `itemName` = :itemName";
+
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':newStockLevel', $newStockLevel, PDO::PARAM_STR);
+        $preparedStatement->bindParam(':itemName', $itemName, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
     }
 
     function updatePricePaid($itemName, $itemPrice)
     {
-        foreach ($this->jsonData['items'] as $key => $value) {
-            if ($value['itemName'] === $itemName) { //find item
-                $this->jsonData['items'][$key]['itemPrice'] = $itemPrice; //update price paid
-            }
-        }
+        //write query with wildcard
+        $sql = "UPDATE `items` SET `itemPrice` = :itemPrice WHERE `itemName` = :itemName";
+
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':itemPrice', $itemPrice, PDO::PARAM_STR);
+        $preparedStatement->bindParam(':itemName', $itemName, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
     }
 
     function updateProfit($itemName, $itemPrice, $itemCount)
@@ -190,22 +246,60 @@ class sqlConnector implements DbInterface
         //1. Calculate the difference between the itemPrice already stored in the array, and the itemPrice supplied
         //2. Multiply the result by the itemCount and add to the 'profit' figure ('profit' can also be a negative so have to bear that in mind)
 
-        $pricePaid = 0;
-        $priceReceived = $itemPrice;
 
-        foreach ($this->jsonData['items'] as $key => $value) {
-            if ($value['itemName'] === $itemName) { //find item
-                $pricePaid = $value['itemPrice']; //store price we paid for the item
-            }
-        }
+        //write query with wildcard
+        $sql = "SELECT `itemPrice` FROM `items` WHERE `itemName` = :itemName";
 
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':itemName', $itemName, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
+
+        //get results
+        $result = $preparedStatement->fetch();
+        $pricePaid = $result['itemPrice'];
+
+        //calculate profit received from transaction (can be negative if we take a loss)
+        $priceReceived = $itemPrice; //this is purely to make the below line easier to read
         $profit = ($priceReceived - $pricePaid) * $itemCount; //calculate profit
-        $this->jsonData['cash'][0]['profit'] += $profit; //add profit to the profit value
+
+        //get profit in one query
+        $sql = "SELECT `profit` FROM `cash` WHERE `id` = 1";
+        $result = $this->db->query($sql);
+        $currentProfit = $result->fetch();
+
+        //calculate new profit value
+        $newProfit = $currentProfit['profit'] += $profit;
+
+        //write query with wildcard
+        $sql = "UPDATE `cash` SET `profit` = :newProfit WHERE `id` = 1";
+
+        //prepare the statement
+        $preparedStatement = $this->db->prepare($sql);
+
+        //bind the values
+        $preparedStatement->bindParam(':newProfit', $newProfit, PDO::PARAM_STR);
+
+        //run the query
+        $preparedStatement->execute();
     }
 
     function getProfit()
     {
-        $currentProfit = $this->jsonData['cash'][0]['profit']; //get current profit
-        return $currentProfit;
+        //write query (no preparing required as no user input taken)
+        $sql = "SELECT `profit` FROM `cash` WHERE `id` = 1";
+
+        //run the query
+        $result = $this->db->query($sql);
+
+        //get the result
+        $result = $result->fetch();
+
+        //return the current profit
+        return $result['profit'];
     }
 }

@@ -1,5 +1,8 @@
 <?php
 
+use Databases\DbInterfaces\DbInterface;
+use Inventory\Transaction;
+
 class Shop
 {
     const ERROR_MSG = 'You have mistyped your parameter, please try again';
@@ -16,7 +19,7 @@ class Shop
     {
         $transaction = new Transaction($this->db);
 
-        $transaction->goodsIn('Misco', 'PS2 Mouse', 0.01, 1);
+        $transaction->goodsIn('Tesco', 'Bread', 0.85, 14);
 
         if ($transaction->result === false) {
             $this->result = 'Transaction failed. ' . $transaction->errorMsg;
@@ -31,7 +34,7 @@ class Shop
     {
         $transaction = new Transaction($this->db);
 
-        $transaction->goodsOut('Misco', 'Butter', 1, 1);
+        $transaction->goodsOut('Sainsburys', 'Rubber Gloves', 3, 3);
 
         if ($transaction->result === false) {
             $this->result = 'Transaction failed. ' . $transaction->errorMsg;

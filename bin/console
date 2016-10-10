@@ -16,9 +16,14 @@ use Command\BuyCommand;
 use Command\SellCommand;
 use Command\ProfitCommand;
 
+//import my connector classes
+use Databases\jsonConnector;
+use Databases\sqlConnector;
 
-//$db = new \jsonConnector();
-$db = new \sqlConnector();
+// choose the DB you want to use for persistence.
+//$db = new jsonConnector();
+$db = new sqlConnector();
+
 $shop = new \Shop($db);
 $app = new ShopApplication($shop);
 $app->add(new BuyCommand());

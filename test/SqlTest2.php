@@ -55,6 +55,51 @@ exit();
 
 
 /////------------------------------
+
+
+$sql = "SELECT `profit` FROM `cash` WHERE `id` = 1";
+$result = $db->query($sql);
+$result = $result->fetch();
+
+
+
+fwrite(STDOUT, $result['profit'] . PHP_EOL);
+
+exit();
+
+
+
+
+
+
+$itemName = "Butter";
+$sql = "SELECT `itemCount` FROM `items` WHERE `itemName` = :itemName";
+
+//prepare the statement
+$preparedStatement = $db->prepare($sql);
+
+//bind the values
+$preparedStatement->bindParam(':itemName', $itemName, PDO::PARAM_STR);
+
+//run the query
+$preparedStatement->execute();
+
+
+$result = $preparedStatement->fetch();
+
+fwrite(STDOUT, $result['itemCount']);
+
+exit();
+
+/*
+
+
+
+
+
+
+
+
 $itemName = 'Baked Beans';
 
 //write query with wildcard
@@ -104,3 +149,5 @@ if($preparedStatement->fetch() === false) { //fetchColumn returns false if there
 }
 
 //for other queries i may have to run $result = preparedStatement->execute(); instead and then loop through the result array to check values etc
+
+*/

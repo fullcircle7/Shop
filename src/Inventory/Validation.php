@@ -1,5 +1,9 @@
 <?php
 
+namespace Inventory;
+
+use Exception;
+
 class Validation
 {
     public function supplierName($supplierName)

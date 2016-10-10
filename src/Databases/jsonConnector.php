@@ -1,5 +1,9 @@
 <?php
 
+namespace Databases;
+
+use Databases\DbInterfaces\DbInterface;
+
 class jsonConnector implements DbInterface
 {
     protected $result;

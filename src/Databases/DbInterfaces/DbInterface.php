@@ -1,5 +1,7 @@
 <?php
 
+namespace Databases\DbInterfaces;
+
 interface DbInterface
 {
     public function __construct();

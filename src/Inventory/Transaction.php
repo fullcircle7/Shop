@@ -1,5 +1,11 @@
 <?php
 
+namespace Inventory;
+
+use Databases\DbInterfaces\DbInterface;
+use Exception;
+
+
 class Transaction
 {
     private $db;

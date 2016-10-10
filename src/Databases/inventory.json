@@ -20,8 +20,8 @@
         },
         {
             "itemName": "Bread",
-            "itemPrice": "0.72",
-            "itemCount": 1,
+            "itemPrice": 0.85,
+            "itemCount": 29,
             "supplierName": "Sainsburys"
         },
         {
@@ -45,7 +45,7 @@
     ],
     "cash": [
         {
-            "rollingCash": 48507.86,
+            "rollingCash": 48484.06,
             "profit": 678.62
         }
     ]
